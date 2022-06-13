@@ -75,6 +75,7 @@ import org.apache.calcite.util.Pair;
 import org.apache.calcite.util.Util;
 import org.urbcomp.start.db.executor.StartDBExecutorFactory;
 import org.urbcomp.start.db.infra.BaseExecutor;
+import org.urbcomp.start.db.infra.MetadataResult;
 import org.urbcomp.start.db.parser.driver.StartDBParseDriver;
 
 import java.lang.reflect.Type;
@@ -709,6 +710,11 @@ public class CalcitePrepareImpl implements CalcitePrepare {
                 case INSERT:
                     BaseExecutor baseExecutor = startDBExecutorFactory.convertExecutor(sqlNode);
                     return (CalciteSignature<T>) baseExecutor.execute();
+                case OTHER:
+                    return (CalciteSignature<T>) MetadataResult.buildResult(
+                        new String[] { "Tables in meta data" },
+                        Arrays.asList(new Object[] { "table1" }, new Object[] { "table2" })
+                    );
                 case DELETE:
                     // ToDO
                     return null;
@@ -832,6 +838,7 @@ public class CalcitePrepareImpl implements CalcitePrepare {
         for (Ord<RelDataTypeField> pair : Ord.zip(jdbcType.getFieldList())) {
             final RelDataTypeField field = pair.e;
             final RelDataType type = field.getType();
+
             final RelDataType fieldType = x.isStruct()
                 ? x.getFieldList().get(pair.i).getType()
                 : type;
